@@ -1,14 +1,12 @@
 import os
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import load_model # Змінено для донавчання
+from tensorflow.keras.models import load_model
 import math
 
-# Шляхи до даних
 train_data_dir = 'data/train'
 validation_data_dir = 'data/test'
 
-# Налаштування генераторів (залишаємо як було)
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
     rotation_range=30,
@@ -35,30 +33,24 @@ validation_generator = validation_datagen.flow_from_directory(
     class_mode='categorical',
     shuffle=True)
 
-# ЗАВАНТАЖЕННЯ ІСНУЮЧОЇ МОДЕЛІ
 if os.path.exists('model_file.h5'):
     print("Знайдено збережену модель. Починаємо донавчання...")
     model = load_model('model_file.h5')
     
-    # ДОДАЙТЕ ЦЕЙ РЯДОК ТУТ:
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     
 else:
     print("Файл моделі не знайдено! Перевірте назву файлу.")
 
-# Підрахунок кількості зображень
 num_train_imgs = train_generator.n
 num_test_imgs = validation_generator.n
 
 print('Кількість тренувальних зображень:', num_train_imgs)
 print('Кількість тестових зображень:', num_test_imgs)
 
-# ВИПРАВЛЕННЯ КРОКІВ (щоб не було UserWarning та пропусків епох)
-# Використовуємо math.ceil, щоб точно охопити всі батчі
 steps_per_epoch = math.ceil(num_train_imgs / 32)
 validation_steps = math.ceil(num_test_imgs / 32)
 
-# Кількість додаткових епох (наприклад, ще 10-15 повних епох)
 epochs = 15 
 
 print(f"Починаємо донавчання на {epochs} епохах...")
