@@ -2,11 +2,9 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 
-# 1. Завантажуємо покращену модель
 model = load_model('model_file_v2.h5')
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
 
-# 2. Завантажуємо детектор облич
 face_classifier = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 cap = cv2.VideoCapture(0)
@@ -22,10 +20,8 @@ while True:
     faces = face_classifier.detectMultiScale(gray, 1.3, 5)
 
     for (x, y, w, h) in faces:
-        # Малюємо рамку навколо обличчя
         cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
         
-        # Обрізаємо та готуємо обличчя для нейромережі
         roi_gray = gray[y:y+h, x:x+w]
         roi_gray = cv2.resize(roi_gray, (48, 48), interpolation=cv2.INTER_AREA)
 
@@ -34,11 +30,9 @@ while True:
             roi = np.expand_dims(roi, axis=0)
             roi = np.expand_dims(roi, axis=-1)
 
-            # Прогноз емоції
             prediction = model.predict(roi, verbose=0)[0]
             label = emotion_labels[prediction.argmax()]
             
-            # Виводимо текст
             cv2.putText(frame, label, (x, y-10), 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
